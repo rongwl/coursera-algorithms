@@ -1,8 +1,8 @@
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.In;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class FastCollinearPoints {
   public FastCollinearPoints(Point[] points) {
@@ -18,9 +18,9 @@ public class FastCollinearPoints {
       if (this.points[i].compareTo(this.points[i+1]) == 0)
         throw new IllegalArgumentException(this.points[i].toString() + " is repeated");
     }
-    //for (Point p : points)
-      //StdOut.println(p);
+
     segments = new ArrayList<LineSegment>();
+    linePoints = new ArrayList<Point[]>();
   }
   
   public int numberOfSegments() {
@@ -29,35 +29,56 @@ public class FastCollinearPoints {
   
   public LineSegment[] segments() {
     for (int i = 0; i < points.length-3; i++) {
-      Point[] pointsBuff = new Point[points.length-1-i];
-      for (int j = 0, k = i+1; j < pointsBuff.length; j++, k++)
-        pointsBuff[j] = points[k];
+      Point[] sortedPoints = Arrays.copyOfRange(points, i, points.length);      
+      Arrays.sort(sortedPoints, sortedPoints[0].slopeOrder());
       
-      Arrays.sort(pointsBuff, points[i].slopeOrder());
-      /*StdOut.print("sort points: ");
-      for (Point p : pointsBuff)
-        StdOut.print(p);
-      StdOut.println("");*/
-      int equal = 0;
-      for (int j = 0; j < pointsBuff.length-1; j++) {
-        //StdOut.println("point i:" + points[i] + " pointBuf j:" + pointsBuff[j] + " pointBuf j+1:" + pointsBuff[j+1]);
-        //StdOut.println("slope i-j:" + points[i].slopeTo(pointsBuff[j]) + " slope i-j+1:" + points[i].slopeTo(pointsBuff[j+1]));
-        if (points[i].slopeTo(pointsBuff[j]) == points[i].slopeTo(pointsBuff[j+1]))
-          equal++;
-        else {
-          //StdOut.println("equal:" + equal);
-          if (equal >= 2)
-            segments.add(new LineSegment(points[i], pointsBuff[j]));
-          equal = 0;
+      sortedPoints = append(sortedPoints, sortedPoints[0]);
+      double slope = sortedPoints[0].slopeTo(sortedPoints[1]);
+      int from, to;
+      for (from = 1, to = 2; to < sortedPoints.length; to++) {
+        if (slope != sortedPoints[0].slopeTo(sortedPoints[to])) {
+          if ((to - from) >= 3 && !containsLine(sortedPoints[from], sortedPoints[to-1])) {
+            linePoints.add(Arrays.copyOfRange(sortedPoints, from, to));
+            segments.add(new LineSegment(sortedPoints[0], sortedPoints[to-1]));
+          }
+          from = to;
         }
-          
+        slope = sortedPoints[0].slopeTo(sortedPoints[to]);
       }
     }
+    
     return (LineSegment[])segments.toArray(new LineSegment[segments.size()]);
   }
   
   private Point[] points;
-  List<LineSegment> segments;
+  private List<Point[]> linePoints;
+  private List<LineSegment> segments;
+  
+  private void showPoints(Point[] points)
+  {
+    for (Point p : points)
+      StdOut.print(p);
+    StdOut.println("");
+  }
+  
+  private boolean containsLine(Point a, Point b)
+  {
+    for (int i = 0; i < linePoints.size(); i++) {
+      if (Arrays.binarySearch(linePoints.get(i), a) >= 0 &&
+          Arrays.binarySearch(linePoints.get(i), b) >= 0)
+        return true;
+    }    
+    return false;
+  }
+  
+  private Point[] append(Point[] old, Point p)
+  {
+    int len = old.length;
+    Point[] newPoints = new Point[len+1];
+    System.arraycopy(old, 0, newPoints, 0, len);
+    newPoints[len] = p;
+    return newPoints;
+  }
   
   public static void main(String[] args) {
     In in = new In(args[0]);

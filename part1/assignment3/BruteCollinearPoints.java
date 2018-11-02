@@ -1,31 +1,27 @@
 import edu.princeton.cs.algs4.StdDraw;
+import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.In;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class BruteCollinearPoints {
-  public BruteCollinearPoints(Point[] points) {
-    if (points == null || points.length == 0)
+  public BruteCollinearPoints(Point[] ps) {
+    if (ps == null || ps.length == 0)
       throw new IllegalArgumentException("points is null");
-    for (int i = 0; i < points.length; i++) {
-      if (points[i] == null)
+    for (int i = 0; i < ps.length; i++) {
+      if (ps[i] == null)
         throw new IllegalArgumentException("point[" + i + "] is null");
     }    
-    this.points = points;
-    Arrays.sort(this.points);
-    for (int i = 0; i < this.points.length-1; i++) {
-      if (this.points[i].compareTo(this.points[i+1]) == 0)
-        throw new IllegalArgumentException(this.points[i].toString() + " is repeated");
+
+    points = Arrays.copyOfRange(ps, 0, ps.length); 
+    Arrays.sort(points);
+    for (int i = 0; i < points.length-1; i++) {
+      if (points[i].compareTo(points[i+1]) == 0)
+        throw new IllegalArgumentException(points[i].toString() + " is repeated");
     }
+    
     segments = new ArrayList<LineSegment>();
-  }
-  
-  public int numberOfSegments() {
-    return segments.size();
-  }
-  
-  public LineSegment[] segments() {
     for (int i = 0; i <= points.length-4; i++) {
       for (int j = i+1; j <= points.length-3; j++) {
         for (int k = j+1; k <= points.length-2; k++) {
@@ -36,12 +32,26 @@ public class BruteCollinearPoints {
           }
         }
       }
-    }    
-    return (LineSegment[])segments.toArray(new LineSegment[segments.size()]);
+    }
+  }
+  
+  public int numberOfSegments() {
+    return segments.size();
+  }
+  
+  public LineSegment[] segments() {
+    return segments.toArray(new LineSegment[segments.size()]);
   }
   
   private Point[] points;
   private List<LineSegment> segments;
+  
+  private void showPoints(Point[] points)
+  {
+    for (Point p : points)
+      StdOut.print(p);
+    StdOut.println("");
+  }
   
   public static void main(String[] args) {
     In in = new In(args[0]);
@@ -65,7 +75,7 @@ public class BruteCollinearPoints {
     for (LineSegment segment : collinear.segments()) {
         StdOut.println(segment);
         segment.draw();
-    }
+    }    
     StdDraw.show();
   }
 }

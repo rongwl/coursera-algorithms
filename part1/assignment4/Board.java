@@ -1,4 +1,3 @@
-import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 import java.util.ArrayList;
@@ -43,8 +42,8 @@ public class Board {
 	{
 		int hamming = 0;
 		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n-1; j++) {
-				if (board[i][j] != n*i+j+1) 
+			for (int j = 0; j < n; j++) {
+				if (board[i][j] != 0 && board[i][j] != n*i+j+1) 
 					hamming++;
 			}
 		}
@@ -57,9 +56,9 @@ public class Board {
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
 				if (board[i][j] != 0 && board[i][j] != n*i+j+1) {
-					int goal_i = board[i][j] / n;
-					int goal_j = board[i][j] % n - 1;
-					manhattan += (goal_i - i + goal_j - j);
+					int goal_i = (board[i][j] - 1) / n;
+					int goal_j = (board[i][j] - 1) % n;
+					manhattan += (Math.abs(goal_i-i) + Math.abs(goal_j-j));
 				}
 			}
 		}
@@ -69,8 +68,8 @@ public class Board {
 	public boolean isGoal()
 	{
 		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n-1; j++) {
-				if (n*i+j+1 != board[i][j])
+			for (int j = 0; j < n; j++) {
+				if (board[i][j] != 0 && n*i+j+1 != board[i][j])
 					return false;
 			}
 		}
@@ -79,10 +78,7 @@ public class Board {
 
 	public Board twin()
 	{
-		int[][] twinBoard = new int[n][n];
-		for (int i = 0; i < n; i++)
-			for (int j = 0; j < n; j++)
-				twinBoard[i][j] = board[i][j];
+		int[][] twinBoard = copyBoard(board);
 
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n-1; j++) {
@@ -120,19 +116,16 @@ public class Board {
 		List<Board> neighborBoards = new ArrayList<Board>();
 		int[] mx = {1,-1,0,0};
 		int[] my = {0,0,1,-1};
-
+		//StdOut.println("board:");
+		//StdOut.println(this);
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
 				if (board[i][j] == 0) {
 					for (int k = 0; k < 4; k++) {
-						int ni = board[i][j] + mx[k];
-						int nj = board[i][j] + my[k];
+						int ni = i + mx[k];
+						int nj = j + my[k];
 						if (ni >= 0 && ni < n && nj >= 0 && nj < n) {
-							int[][] newBoard = new int[i][j];
-							for (int l = 0; l < n; i++)
-								for (int m = 0; m < n; j++)
-									newBoard[l][m] = board[l][m];
-
+							int[][] newBoard = copyBoard(board);
 							newBoard[i][j] = board[ni][nj];
 							newBoard[ni][nj] = 0;
 							neighborBoards.add(new Board(newBoard));	
@@ -159,6 +152,14 @@ public class Board {
 		return str.toString();
 	}
 
+	private int[][] copyBoard(int[][] src) {
+		int[][] dest = new int[src.length][src.length];
+		for(int i=0;i<src.length;i++)
+			for(int j=0;j<src.length;j++)
+			   	dest[i][j]=src[i][j];
+		return dest;
+	}
+
 	public static void main(String[] args)
 	{
 		In in = new In(args[0]);
@@ -169,7 +170,25 @@ public class Board {
 				blocks[i][j] = in.readInt();
 		Board initial = new Board(blocks);
 
+		StdOut.println("initial:");
 		StdOut.println(initial);
-		StdOut.println("hamming:"+initial.hamming());
+		StdOut.println("hamming:" + initial.hamming());
+		StdOut.println("manhattan:" + initial.manhattan());
+		StdOut.println("goal:" + initial.isGoal());
+		StdOut.println("neighbors:");
+		for (Board obj : initial.neighbors())
+			StdOut.println(obj);
+
+		StdOut.println("twin:");
+		Board twin = initial.twin();
+		StdOut.println(twin);
+		StdOut.println("hamming:" + twin.hamming());
+		StdOut.println("manhattan:" + twin.manhattan());
+		StdOut.println("goal:" + twin.isGoal());
+		StdOut.println("neighbors:");
+		for (Board obj : twin.neighbors())
+			StdOut.println(obj);
+
+		StdOut.println("equal:"+initial.equals(twin));
 	}
 }

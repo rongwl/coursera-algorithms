@@ -30,7 +30,7 @@ public class Board {
 					throw new java.lang.IllegalArgumentException("block value is out of range");
 			}
 		}
-		board = blocks;
+		board = copyBoard(blocks);
 	}
 
 	public int dimension()
@@ -116,8 +116,7 @@ public class Board {
 		List<Board> neighborBoards = new ArrayList<Board>();
 		int[] mx = {1,-1,0,0};
 		int[] my = {0,0,1,-1};
-		//StdOut.println("board:");
-		//StdOut.println(this);
+		
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
 				if (board[i][j] == 0) {
@@ -155,8 +154,8 @@ public class Board {
 	private int[][] copyBoard(int[][] src) {
 		int[][] dest = new int[src.length][src.length];
 		for(int i=0;i<src.length;i++)
-			for(int j=0;j<src.length;j++)
-			   	dest[i][j]=src[i][j];
+			dest[i] = Arrays.copyOf(src[i], src.length);
+		
 		return dest;
 	}
 

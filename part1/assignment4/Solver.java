@@ -35,32 +35,15 @@ public class Solver {
 		}
 	}
 
-	private int moves;
 	private boolean isSolvable;
 	private Stack<Board> solutions;
 
 	private SearchNode move(SearchNode node, MinPQ<SearchNode> pq) {
-		/*StdOut.println("search node:");
-		StdOut.println(node.board());
-		if (node.prevBoard() != null) {
-			StdOut.println("prev node:");
-			StdOut.println(node.prevBoard());
-		}
-		StdOut.println("neighbors:");*/
 		for (Board neighbors : node.board().neighbors()) {
 			if (node.prevNode() == null || !neighbors.equals(node.prevNode().board())) {
-				//StdOut.println(neighbors);
 				pq.insert(new SearchNode(neighbors, node, node.moves+1));
 			}
 		}
-		/*for (SearchNode snode : pq) {
-			StdOut.println("pq:");
-			StdOut.println("priority:" + (snode.board().manhattan() + snode.moves()));
-			StdOut.println("manhattan:" + snode.board().manhattan());
-			StdOut.println("moves:" + snode.moves());
-			StdOut.println(snode.board());
-		}*/
-
 		return pq.delMin();
 	}
 
@@ -81,9 +64,7 @@ public class Solver {
 		Board twin = initial.twin();
 		SearchNode node1 = new SearchNode(initial, null, 0);
 		SearchNode node2 = new SearchNode(twin, null, 0);
-		StdOut.println("initial:");
-		StdOut.println(initial);
-		int i = 0;
+		
 		while (true) {
 			if (node1.board().isGoal()) {
 				isSolvable = true;
@@ -94,19 +75,8 @@ public class Solver {
 				isSolvable = false;
 				break;
 			}
-			//StdOut.println("node1:");
-			//StdOut.println(node1.board());
 			node1 = move(node1, pq1);
-
-			//StdOut.println("solutions:");
-			/*StdOut.println("priority:" + (node1.board().manhattan() + node1.moves()));
-			StdOut.println("manhattan:" + node1.board().manhattan());
-			StdOut.println("moves:" + node1.moves());
-			StdOut.println(node1.board());*/
-			//StdOut.println("goal:"+ node1.board().isGoal() + " size:" + solutions.size());
 			node2 = move(node2, pq2);
-			//if (i++ > 100)
-			//	break;
 		}
 	}
 
